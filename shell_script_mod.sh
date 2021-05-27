@@ -14,7 +14,17 @@ function monkcoder(){
     # 设置定时任务
     echo "15 0,9,20 * * * node /scripts/monkcoder_adolf_newInteraction.js >> /scripts/logs/monkcoder_adolf_newInteraction.log 2>&1" >> /scripts/docker/merged_list_file.sh
     echo "15 9,20 * 5,6 * node /scripts/monkcoder_adolf_superbox.js >> /scripts/logs/monkcoder_adolf_superbox.log 2>&1" >> /scripts/docker/merged_list_file.sh
-    echo "15 8,13,18 17-31 5 *  node /scripts/monkcoder_adolf_pk.js >> /scripts/logs/monkcoder_adolf_pk.log 2>&1" >> /scripts/docker/merged_list_file.sh
+    echo "15 8,13,18 17-31 5 * node /scripts/monkcoder_adolf_pk.js >> /scripts/logs/monkcoder_adolf_pk.log 2>&1" >> /scripts/docker/merged_list_file.sh
+}
+
+function custom(){
+    mkdir /custom
+    # https://github.com/qqsdff/script
+    wget https://raw.githubusercontent.com/qqsdff/script/main/jd/jd_jbczy.js -O /custom/qqsdff_jbczy.js
+    # 拷贝脚本
+    cp /custom/qqsdff_jbczy.js /scripts/qqsdff_jbczy.js
+    # 设置定时任务
+    echo "0 8 * * *  node /scripts/qqsdff_jbczy.js >> /scripts/logs/qqsdff_jbczy.log 2>&1" >> /scripts/docker/merged_list_file.sh
 }
 
 function main(){
@@ -24,6 +34,7 @@ function main(){
     a_jsnum=$(ls -l /scripts | grep -oE "^-.*js$" | wc -l)
     a_jsname=$(ls -l /scripts | grep -oE "^-.*js$" | grep -oE "[^ ]*js$")
     monkcoder
+    custom
     b_jsnum=$(ls -l /scripts | grep -oE "^-.*js$" | wc -l)
     b_jsname=$(ls -l /scripts | grep -oE "^-.*js$" | grep -oE "[^ ]*js$")
     # DIY脚本更新TG通知
