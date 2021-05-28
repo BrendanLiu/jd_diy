@@ -10,11 +10,9 @@ function monkcoder(){
     # 拷贝脚本
     cp /monkcoder/normal/adolf_newInteraction.js /scripts/monkcoder_adolf_newInteraction.js
     cp /monkcoder/normal/adolf_superbox.js /scripts/monkcoder_adolf_superbox.js
-    cp /monkcoder/normal/adolf_pk.js /scripts/monkcoder_adolf_pk.js
     # 设置定时任务
     echo "15 0,9,20 * * * node /scripts/monkcoder_adolf_newInteraction.js >> /scripts/logs/monkcoder_adolf_newInteraction.log 2>&1" >> /scripts/docker/merged_list_file.sh
     echo "15 9,20 * 5,6 * node /scripts/monkcoder_adolf_superbox.js >> /scripts/logs/monkcoder_adolf_superbox.log 2>&1" >> /scripts/docker/merged_list_file.sh
-    echo "15 8,13,18 17-31 5 * node /scripts/monkcoder_adolf_pk.js >> /scripts/logs/monkcoder_adolf_pk.log 2>&1" >> /scripts/docker/merged_list_file.sh
 }
 
 function main(){
