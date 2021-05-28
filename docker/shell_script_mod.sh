@@ -17,9 +17,6 @@ function monkcoder(){
     echo "15 8,13,18 17-31 5 * node /scripts/monkcoder_adolf_pk.js >> /scripts/logs/monkcoder_adolf_pk.log 2>&1" >> /scripts/docker/merged_list_file.sh
 }
 
-function custom(){
-}
-
 function main(){
     # 首次运行时拷贝docker目录下文件
     [[ ! -d /jd_diy ]] && mkdir /jd_diy && cp -rf /scripts/docker/* /jd_diy
