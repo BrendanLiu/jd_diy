@@ -3,6 +3,7 @@
 ### 编辑docker-compose.yml文件添加: - CUSTOM_SHELL_FILE=https://raw.githubusercontent.com/monk-coder/dust/dust/shell_script_mod.sh
 #### 容器完全启动后执行 docker exec -it jd_scripts /bin/sh -c 'crontab -l' 查看目前修行的经书
 
+:<<!
 function monkcoder(){
     # https://github.com/monk-coder/dust
     rm -rf /monkcoder /scripts/monkcoder_*
@@ -14,6 +15,7 @@ function monkcoder(){
     echo "15 0,9,20 * * * node /scripts/monkcoder_adolf_newInteraction.js >> /scripts/logs/monkcoder_adolf_newInteraction.log 2>&1" >> /scripts/docker/merged_list_file.sh
     echo "15 9,20 * 5,6 * node /scripts/monkcoder_adolf_superbox.js >> /scripts/logs/monkcoder_adolf_superbox.log 2>&1" >> /scripts/docker/merged_list_file.sh
 }
+!
 
 function main(){
     # 首次运行时拷贝docker目录下文件
@@ -21,7 +23,7 @@ function main(){
     # DIY脚本执行前后信息
     a_jsnum=$(ls -l /scripts | grep -oE "^-.*js$" | wc -l)
     a_jsname=$(ls -l /scripts | grep -oE "^-.*js$" | grep -oE "[^ ]*js$")
-    monkcoder
+    # monkcoder
     b_jsnum=$(ls -l /scripts | grep -oE "^-.*js$" | wc -l)
     b_jsname=$(ls -l /scripts | grep -oE "^-.*js$" | grep -oE "[^ ]*js$")
     # DIY脚本更新TG通知
