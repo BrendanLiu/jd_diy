@@ -23,7 +23,10 @@
 0 0,6,12 * * * node /scripts/jd_carnivalcity.js >> /scripts/logs/jd_carnivalcity.log 2>&1
 
 #618动物联萌
-7,27,47 * * * * node /scripts/jd_zoo.js >> /scripts/logs/jd_zoo.log 2>&1
+23 0-23/2 node /scripts/jd_zoo.js >> /scripts/logs/jd_zoo.log 2>&1
+
+#618动物联萌收金币
+7,27,47 * * * * node /scripts/jd_zooCollect.js >> /scripts/logs/jd_zooCollect.log 2>&1
 
 #家电星推官 活动时间：2021年5月27日 00:00:00-2021年6月18日 23:59:59
 0 0 * * * node /scripts/jd_xtg.js >> /scripts/logs/jd_xtg.log 2>&1
