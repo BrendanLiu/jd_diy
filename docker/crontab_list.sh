@@ -40,6 +40,9 @@
 #新潮品牌狂欢
 4 0,1,21 * * * node /scripts/jd_mcxhd.js >> /scripts/logs/jd_mcxhd.log 2>&1
 
+#省钱大赢家之翻翻乐
+10,40 * * * * node /scripts/jd_big_winner.js >> /scripts/logs/jd_big_winner.log 2>&1
+
 ##############长期活动##############
 # 签到
 5,10 0,7,9,17 * * * cd /scripts && node jd_bean_sign.js >> /scripts/logs/jd_bean_sign.log 2>&1
