@@ -24,7 +24,7 @@ jd_scripts:
     # 注意环境变量填写值的时候一律不需要引号（""或者''）下面这些只是示例，根据自己的需求增加删除
     #jd cookies
     # 例: JD_COOKIE=pt_key=XXX;pt_pin=XXX;
-    # 例（多账号）: JD_COOKIE=pt_key=XXX;pt_pin=XXX;&pt_key=XXX;pt_pin=XXX;&pt_key=XXX;pt_pin=XXX;
+    #例（多账号）: JD_COOKIE=pt_key=XXX;pt_pin=XXX;&pt_key=XXX;pt_pin=XXX;&pt_key=XXX;pt_pin=XXX;
     - JD_COOKIE=
     #微信server酱通知
     - PUSH_KEY=
@@ -57,6 +57,6 @@ jd_scripts:
     #并不是所有的脚本都会被启用延迟，因为有一些脚本需要整点触发。延迟的目的有两个，1是降低抢占cpu资源几率，2是降低检查风险（主要是1）
     #填写数字，单位为秒，比如写为 RANDOM_DELAY_MAX=30  就是随机产生0到29之间的一个秒数，执行延迟的意思。
     - RANDOM_DELAY_MAX=120
-    #使用自定义定任务追加默认任务之后，上面volumes挂载之后这里配置对应的文件名
+    #使用自定义定任务覆盖默认任务，上面volumes挂载之后这里配置对应的文件名，和自定义文件使用方式为overwrite
     - CUSTOM_LIST_FILE=my_crontab_list.sh
-
+    - CUSTOM_LIST_MERGE_TYPE=overwrite
