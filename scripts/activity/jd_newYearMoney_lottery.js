@@ -1,30 +1,36 @@
 /*
-京喜签到
+京东压岁钱抢百元卡
+活动时间：2021-2-1至2021-2-10
+活动入口：京东APP我的-压岁钱
+活动地址：https://unearth.m.jd.com/babelDiy/Zeus/22uHDsyHntidZV9tpwov2hrUUvmb/index.html
 已支持IOS双京东账号,Node.js支持N个京东账号
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
 ============Quantumultx===============
 [task_local]
-#京喜签到
-5 0 * * * jx_sign.js, tag=京喜签到, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
+#京东压岁钱抢百元卡
+0 0 9,12,16,20 * * * jd_newYearMoney_lottery.js, tag=京东压岁钱抢百元卡, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
 
 ================Loon==============
 [Script]
-cron "5 0 * * *" script-path=jx_sign.js,tag=京喜签到
+cron "0 0 9,12,16,20 * * *" script-path=jd_newYearMoney_lottery.js, tag=京东压岁钱抢百元卡
 
 ===============Surge=================
-京喜签到 = type=cron,cronexp="5 0 * * *",wake-system=1,timeout=3600,script-path=jx_sign.js
+京东压岁钱抢百元卡 = type=cron,cronexp="0 0 9,12,16,20 * * *",wake-system=1,timeout=3600,script-path=jd_newYearMoney_lottery.js
 
 ============小火箭=========
-京喜签到 = type=cron,script-path=jx_sign.js, cronexpr="5 0 * * *", timeout=3600, enable=true
+京东压岁钱抢百元卡 = type=cron,script-path=jd_newYearMoney_lottery.js, cronexpr="0 0 9,12,16,20 * * *", timeout=3600, enable=true
  */
-const $ = new Env('京喜签到');
-const notify = $.isNode() ? require('../sendNotify') : '';
+
+const $ = new Env('京东压岁钱抢百元卡');
+
+const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
-const jdCookieNode = $.isNode() ? require('../jdCookie.js') : '';
+const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let jdNotify = true;//是否关闭通知，false打开通知推送，true关闭通知推送
+const randomCount = $.isNode() ? 20 : 5;
+
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [], cookie = '', message;
-let helpAuthor = true
 if ($.isNode()) {
   Object.keys(jdCookieNode).forEach((item) => {
     cookiesArr.push(jdCookieNode[item])
@@ -33,14 +39,12 @@ if ($.isNode()) {
 } else {
   cookiesArr = [$.getdata('CookieJD'), $.getdata('CookieJD2'), ...jsonParse($.getdata('CookiesJD') || "[]").map(item => item.cookie)].filter(item => !!item);
 }
-const JD_API_HOST = 'https://m.jingxi.com/';
+const JD_API_HOST = 'https://api.m.jd.com/client.action';
 !(async () => {
   if (!cookiesArr[0]) {
     $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
     return;
   }
-  $.newShareCodes = []
-  // await getAuthorShareCode();
   for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       cookie = cookiesArr[i];
@@ -59,166 +63,27 @@ const JD_API_HOST = 'https://m.jingxi.com/';
         }
         continue
       }
-      await jdCash()
+      await jdNian()
+      await showMsg()
     }
   }
 })()
-    .catch((e) => {
-      $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
-    })
-    .finally(() => {
-      $.done();
-    })
-async function jdCash() {
-  $.coins = 0
-  $.money = 0
-  await sign()
-  await getTaskList()
-  await doubleSign()
-  await showMsg()
-}
-function sign() {
-  return new Promise((resolve) => {
-    $.get(taskUrl("pgcenter/sign/UserSignOpr"), async (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          if (safeGet(data)) {
-            data = JSON.parse(data);
-            if(data.retCode ===0){
-              if(data.data.signStatus===0){
-                console.log(`签到成功，获得${data.data.pingoujin}金币，已签到${data.data.signDays}天`)
-                $.coins += parseInt(data.data.pingoujin)
-              }else{
-                console.log(`今日已签到`)
-              }
-            }else{
-              console.log(`签到失败，错误信息${data.errMsg}`)
-            }
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
-    })
+  .catch((e) => {
+    $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
   })
-}
-function getTaskList() {
-  return new Promise((resolve) => {
-    $.get(taskUrl("pgcenter/task/QueryPgTaskCfgByType","taskType=3"), async (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          if (safeGet(data)) {
-            data = JSON.parse(data);
-            if(data.retCode ===0){
-              for (task of data.data.tasks) {
-                if(task.taskState===1){
-                  console.log(`去做${task.taskName}任务`)
-                  await doTask(task.taskId);
-                  await $.wait(1000)
-                  await finishTask(task.taskId);
-                  await $.wait(1000)
-                }
-              }
-            }else{
-              console.log(`签到失败，错误信息${data.errMsg}`)
-            }
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
-    })
+  .finally(() => {
+    $.done();
   })
+
+async function jdNian() {
+  try {
+    await lotteryHundredCard()
+  } catch (e) {
+    $.logErr(e)
+  }
 }
-function doTask(id) {
-  return new Promise((resolve) => {
-    $.get(taskUrl("pgcenter/task/drawUserTask",`taskid=${id}`), async (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          if (safeGet(data)) {
-            data = JSON.parse(data);
-            if(data.retCode ===0){
-              console.log(`任务领取成功`)
-            }else{
-              console.log(`任务完成失败，错误信息${data.errMsg}`)
-            }
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
-    })
-  })
-}
-function finishTask(id) {
-  return new Promise((resolve) => {
-    $.get(taskUrl("pgcenter/task/UserTaskFinish",`taskid=${id}`), async (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          if (safeGet(data)) {
-            data = JSON.parse(data);
-            if(data.retCode ===0){
-              console.log(`任务完成成功，获得金币${data.datas[0]['pingouJin']}`)
-              $.coins += data.datas[0]['pingouJin']
-            }else{
-              console.log(`任务完成失败，错误信息${data.errMsg}`)
-            }
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
-    })
-  })
-}
-function doubleSign() {
-  return new Promise((resolve) => {
-    $.get(taskUrl("double_sign/IssueReward",), async (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          if (safeGet(data)) {
-            data = JSON.parse(data);
-            if(data.retCode ===0){
-              console.log(`双签成功，获得金币${data.data.jd_amount / 100}元`)
-              $.money += data.data.jd_amount / 100
-            }else{
-              console.log(`任务完成失败，错误信息${data.errMsg}`)
-            }
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
-    })
-  })
-}
+
 function showMsg() {
-  message+=`本次运行获得金币${$.coins},现金${$.money}`
   return new Promise(resolve => {
     if (!jdNotify) {
       $.msg($.name, '', `${message}`);
@@ -229,21 +94,95 @@ function showMsg() {
   })
 }
 
-function taskUrl(functionId, body = '') {
+function lotteryHundredCard() {
+  return new Promise((resolve) => {
+    $.post(taskPostUrl('newyearmoney_lotteryHundredCard'), async (err, resp, data) => {
+      try {
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} API请求失败，请检查网路重试`)
+        } else {
+          data = JSON.parse(data);
+          if (data && data.data['bizCode'] === 0) {
+            console.log(JSON.stringify(data))
+            message += JSON.stringify(data)
+          } else {
+            console.log(data.data.bizMsg)
+            message += data.data.bizMsg
+          }
+        }
+      } catch (e) {
+        $.logErr(e, resp);
+      } finally {
+        resolve();
+      }
+    })
+  })
+}
+function showHundredCardInfo(cardNo) {
+  return new Promise((resolve) => {
+    $.post(taskPostUrl('newyearmoney_showHundredCardInfo',{cardNo:cardNo}), async (err, resp, data) => {
+      try {
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} API请求失败，请检查网路重试`)
+        } else {
+          data = JSON.parse(data);
+          console.log(data)
+          if (data && data.data['bizCode'] === 0) {
+            console.log(JSON.stringify(data))
+          } else {
+            console.log(data.data.bizMsg)
+          }
+        }
+      } catch (e) {
+        $.logErr(e, resp);
+      } finally {
+        resolve();
+      }
+    })
+  })
+}
+function receiveHundredCard(cardNo) {
+  return new Promise((resolve) => {
+    $.post(taskPostUrl('newyearmoney_receiveHundredCard',{cardNo:cardNo}), async (err, resp, data) => {
+      try {
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} API请求失败，请检查网路重试`)
+        } else {
+          data = JSON.parse(data);
+          console.log(data)
+          if (data && data.data['bizCode'] === 0) {
+            console.log(JSON.stringify(data))
+          } else {
+            console.log(data.data.bizMsg)
+          }
+        }
+      } catch (e) {
+        $.logErr(e, resp);
+      } finally {
+        resolve();
+      }
+    })
+  })
+}
+
+function taskPostUrl(function_id, body = {}, function_id2) {
+  let url = `${JD_API_HOST}`;
   return {
-    url: `${JD_API_HOST}${functionId}?sceneval=2&g_login_type=1&g_ty=ls&${body}`,
+    url,
+    body: `functionId=${function_id}&body=${escape(JSON.stringify(body))}&client=wh5&clientVersion=1.0.0`,
     headers: {
-      'Cookie': cookie,
-      'Host': 'm.jingxi.com',
-      'Connection': 'keep-alive',
+      "Cookie": cookie,
+      "origin": "https://h5.m.jd.com",
+      "referer": "https://h5.m.jd.com/",
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Referer': 'https://jddx.jd.com/m/jddnew/money/index.html',
-      'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('../USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
-      'Accept-Language': 'zh-cn',
-      'Accept-Encoding': 'gzip, deflate, br',
+      "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1")
     }
   }
 }
+
 
 function TotalBean() {
   return new Promise(async resolve => {
@@ -257,7 +196,7 @@ function TotalBean() {
         "Connection": "keep-alive",
         "Cookie": cookie,
         "Referer": "https://wqs.jd.com/my/jingdou/my.shtml?sceneval=2",
-        "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('../USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1")
+        "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1")
       }
     }
     $.post(options, (err, resp, data) => {
@@ -289,6 +228,7 @@ function TotalBean() {
     })
   })
 }
+
 function safeGet(data) {
   try {
     if (typeof JSON.parse(data) == "object") {
@@ -300,6 +240,7 @@ function safeGet(data) {
     return false;
   }
 }
+
 function jsonParse(str) {
   if (typeof str == "string") {
     try {
