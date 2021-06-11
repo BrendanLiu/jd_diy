@@ -200,21 +200,21 @@ if [ $DO_NOT_RUN_SCRIPTS ]; then
 
 fi
 
-echo "第6步设定下次运行docker_entrypoint.sh时间..."
-echo "删除原有docker_entrypoint.sh任务"
-sed -ie '/'docker_entrypoint.sh'/d' ${mergedListFile}
+# echo "第6步设定下次运行docker_entrypoint.sh时间..."
+# echo "删除原有docker_entrypoint.sh任务"
+# sed -ie '/'docker_entrypoint.sh'/d' ${mergedListFile}
 
 # 12:00前生成12:00后的cron，12:00后生成第二天12:00前的cron，一天只更新两次代码
-if [ $(date +%-H) -lt 12 ]; then
-  random_h=$(($RANDOM % 12 + 12))
-else
-  random_h=$(($RANDOM % 12))
-fi
-random_m=$(($RANDOM % 60))
+# if [ $(date +%-H) -lt 12 ]; then
+#   random_h=$(($RANDOM % 12 + 12))
+# else
+#   random_h=$(($RANDOM % 12))
+# fi
+# random_m=$(($RANDOM % 60))
 
-echo "设定 docker_entrypoint.sh cron为："
-echo -e "\n# 必须要的默认定时任务请勿删除" >>$mergedListFile
-echo -e "${random_m} ${random_h} * * * docker_entrypoint.sh >> /scripts/logs/default_task.log 2>&1" | tee -a $mergedListFile
+# echo "设定 docker_entrypoint.sh cron为："
+# echo -e "\n# 必须要的默认定时任务请勿删除" >>$mergedListFile
+# echo -e "${random_m} ${random_h} * * * docker_entrypoint.sh >> /scripts/logs/default_task.log 2>&1" | tee -a $mergedListFile
 
 echo "第7步 自动助力"
 if [ -n "$ENABLE_AUTO_HELP" ]; then
@@ -243,8 +243,8 @@ if [[ -f /usr/bin/jd_bot && -z "$DISABLE_SPNODE" ]]; then
 fi
 crontab $mergedListFile
 
-echo "第11步将仓库的docker_entrypoint.sh脚本更新至系统/usr/local/bin/docker_entrypoint.sh内..."
-cat /scripts/docker/docker_entrypoint.sh >/usr/local/bin/docker_entrypoint.sh
+# echo "第11步将仓库的docker_entrypoint.sh脚本更新至系统/usr/local/bin/docker_entrypoint.sh内..."
+# cat /scripts/docker/docker_entrypoint.sh >/usr/local/bin/docker_entrypoint.sh
 
 echo "发送通知"
 export NOTIFY_CONTENT=""
